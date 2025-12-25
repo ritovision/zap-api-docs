@@ -664,6 +664,10 @@ body {
   %right-col+%left-col {
     margin-top: $main-padding;
   }
+
+  .highlight {
+    margin-bottom: 1em;
+  }
 }
 
 .highlight .c,
