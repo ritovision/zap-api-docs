@@ -22,6 +22,8 @@
   var closeToc = function () {
     $(".toc-wrapper").removeClass('open');
     $("#nav-button").removeClass('open');
+    // Ensure ARIA state is synced
+    $("#nav-button").attr("aria-expanded", "false");
   };
 
   function loadToc($toc, tocLinkSelector, tocListSelector, scrollOffset) {
@@ -102,6 +104,14 @@
         $("#nav-button").attr("aria-expanded", isOpen);
 
         return false;
+      });
+
+      $(document).keyup(function (e) {
+        // 27 is the Escape key
+        // Only trigger if nav-button is visible (mobile/tablet)
+        if (e.keyCode === 27 && $("#nav-button").is(":visible")) {
+          closeToc();
+        }
       });
       $(".page-wrapper").click(closeToc);
       $(".toc-link").click(closeToc);
