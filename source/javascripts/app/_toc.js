@@ -1,16 +1,16 @@
 //= require ../lib/_jquery
 //= require ../lib/_imagesloaded.min
-;(function () {
+; (function () {
   'use strict';
 
   var htmlPattern = /<[^>]*>/g;
   var loaded = false;
 
-  var debounce = function(func, waitTime) {
+  var debounce = function (func, waitTime) {
     var timeout = false;
-    return function() {
+    return function () {
       if (timeout === false) {
-        setTimeout(function() {
+        setTimeout(function () {
           func();
           timeout = false;
         }, waitTime);
@@ -19,9 +19,11 @@
     };
   };
 
-  var closeToc = function() {
+  var closeToc = function () {
     $(".toc-wrapper").removeClass('open');
     $("#nav-button").removeClass('open');
+    // Ensure ARIA state is synced
+    $("#nav-button").attr("aria-expanded", "false");
   };
 
   function loadToc($toc, tocLinkSelector, tocListSelector, scrollOffset) {
@@ -30,12 +32,12 @@
     var windowHeight = 0;
     var originalTitle = document.title;
 
-    var recacheHeights = function() {
+    var recacheHeights = function () {
       headerHeights = {};
       pageHeight = $(document).height();
       windowHeight = $(window).height();
 
-      $toc.find(tocLinkSelector).each(function() {
+      $toc.find(tocLinkSelector).each(function () {
         var targetId = $(this).attr('href');
         if (targetId[0] === "#") {
           headerHeights[targetId] = $(targetId).offset().top;
@@ -43,7 +45,7 @@
       });
     };
 
-    var refreshToc = function() {
+    var refreshToc = function () {
       var currentTop = $(document).scrollTop() + scrollOffset;
 
       if (currentTop + windowHeight >= pageHeight) {
@@ -70,9 +72,9 @@
       if (!$best.hasClass("active")) {
         // .active is applied to the ToC link we're currently on, and its parent <ul>s selected by tocListSelector
         // .active-expanded is applied to the ToC links that are parents of this one
-        $toc.find(".active").removeClass("active");
+        $toc.find(".active").removeClass("active").removeAttr("aria-current");
         $toc.find(".active-parent").removeClass("active-parent");
-        $best.addClass("active");
+        $best.addClass("active").attr("aria-current", "location");
         $best.parents(tocListSelector).addClass("active").siblings(tocLinkSelector).addClass('active-parent');
         $best.siblings(tocListSelector).addClass("active");
         $toc.find(tocListSelector).filter(":not(.active)").slideUp(150);
@@ -89,21 +91,34 @@
       }
     };
 
-    var makeToc = function() {
+    var makeToc = function () {
       recacheHeights();
       refreshToc();
 
-      $("#nav-button").click(function() {
+      $("#nav-button").click(function () {
         $(".toc-wrapper").toggleClass('open');
         $("#nav-button").toggleClass('open');
+
+        // Update ARIA state
+        var isOpen = $("#nav-button").hasClass('open');
+        $("#nav-button").attr("aria-expanded", isOpen);
+
         return false;
+      });
+
+      $(document).keyup(function (e) {
+        // 27 is the Escape key
+        // Only trigger if nav-button is visible (mobile/tablet)
+        if (e.keyCode === 27 && $("#nav-button").is(":visible")) {
+          closeToc();
+        }
       });
       $(".page-wrapper").click(closeToc);
       $(".toc-link").click(closeToc);
 
       // reload immediately after scrolling on toc click
-      $toc.find(tocLinkSelector).click(function() {
-        setTimeout(function() {
+      $toc.find(tocLinkSelector).click(function () {
+        setTimeout(function () {
           refreshToc();
         }, 0);
       });
