@@ -24,7 +24,8 @@ under the License.
 // GENERAL STUFF
 ////////////////////////////////////////////////////////////////////////////////
 
-html, body {
+html,
+body {
   color: $main-text;
   padding: 0;
   margin: 0;
@@ -33,14 +34,15 @@ html, body {
   @extend %default-font;
   background-color: $main-bg;
   height: 100%;
-  -webkit-text-size-adjust: none; /* Never autoresize text */
+  -webkit-text-size-adjust: none;
+  /* Never autoresize text */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // TABLE OF CONTENTS
 ////////////////////////////////////////////////////////////////////////////////
 
-#toc > ul > li > a > span {
+#toc>ul>li>a>span {
   float: right;
   background-color: #2484FF;
   border-radius: 40px;
@@ -65,6 +67,7 @@ html, body {
   // language selector for mobile devices
   .lang-selector {
     display: none;
+
     a {
       padding-top: 0.5em;
       padding-bottom: 0.5em;
@@ -91,7 +94,8 @@ html, body {
       width: $nav-width - ($nav-padding*2);
       outline: none;
       color: $nav-text;
-      border-radius: 0; /* ios has a default border radius */
+      border-radius: 0;
+      /* ios has a default border radius */
     }
 
     &:before {
@@ -113,13 +117,15 @@ html, body {
     transition-duration: 180ms;
     transition-timing-function: ease-in-out;
     background: $nav-subitem-bg;
+
     &.visible {
       height: 30%;
       margin-bottom: 1em;
     }
-    background:
-      linear-gradient(to top, rgba(#000, 0.2), rgba(#000, 0) 5px),
-      linear-gradient(to bottom, rgba(#000, 0.2), rgba(#000, 0) 5px);
+
+    background: linear-gradient(to top, rgba(#000, 0.2), rgba(#000, 0) 5px),
+    linear-gradient(to bottom, rgba(#000, 0.2), rgba(#000, 0) 5px);
+
     li {
       margin: 1em $nav-padding;
       line-height: 1;
@@ -139,7 +145,8 @@ html, body {
   // The Table of Contents is composed of multiple nested
   // unordered lists.  These styles remove the default
   // styling of an unordered list because it is ugly.
-  ul, li {
+  ul,
+  li {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -185,7 +192,8 @@ html, body {
     margin-top: 1em;
     border-top: 1px dashed $nav-footer-border-color;
 
-    li,a {
+    li,
+    a {
       color: $nav-text;
       text-decoration: none;
     }
@@ -202,7 +210,8 @@ html, body {
   }
 }
 
-.toc-link, .toc-footer li {
+.toc-link,
+.toc-footer li {
   padding: 0 $nav-padding 0 $nav-padding;
   display: block;
   overflow-x: hidden;
@@ -226,6 +235,7 @@ html, body {
     transform: rotate(-90deg) translate(-100%, 0);
     border-radius: 0 0 0 5px;
   }
+
   padding: 0 1.5em 5em 0; // increase touch size area
   display: none;
   position: fixed;
@@ -237,6 +247,7 @@ html, body {
   font-weight: bold;
   opacity: 0.7;
   line-height: 16px;
+
   img {
     height: 16px;
     vertical-align: bottom;
@@ -244,8 +255,13 @@ html, body {
 
   transition: left 0.3s ease-in-out;
 
-  &:hover { opacity: 1; }
-  &.open {left: $nav-width}
+  &:hover {
+    opacity: 1;
+  }
+
+  &.open {
+    left: $nav-width
+  }
 }
 
 
@@ -287,16 +303,18 @@ html, body {
   background-color: $lang-select-bg;
   width: 100%;
   font-weight: bold;
+
   a {
     display: block;
-    float:left;
+    float: left;
     color: $lang-select-text;
     text-decoration: none;
     padding: 0 10px;
     line-height: 30px;
     outline: 0;
 
-    &:active, &:focus {
+    &:active,
+    &:focus {
       background-color: $lang-select-pressed-bg;
       color: $lang-select-pressed-text;
     }
@@ -332,7 +350,18 @@ html, body {
     clear: both;
   }
 
-  &>h1, &>h2, &>h3, &>h4, &>h5, &>h6, &>p, &>table, &>ul, &>ol, &>aside, &>dl {
+  &>h1,
+  &>h2,
+  &>h3,
+  &>h4,
+  &>h5,
+  &>h6,
+  &>p,
+  &>table,
+  &>ul,
+  &>ol,
+  &>aside,
+  &>dl {
     margin-right: $examples-width;
     padding: 0 $main-padding;
     box-sizing: border-box;
@@ -341,13 +370,16 @@ html, body {
     @extend %left-col;
   }
 
-  &>ul, &>ol {
+  &>ul,
+  &>ol {
     padding-left: $main-padding + 15px;
   }
 
   // the div is the tocify hidden div for placeholding stuff
-  &>h1, &>h2, &>div {
-    clear:both;
+  &>h1,
+  &>h2,
+  &>div {
+    clear: both;
   }
 
   h1 {
@@ -361,7 +393,8 @@ html, body {
     //border-bottom: 1px solid #ccc;
   }
 
-  h1:first-child, div:first-child + h1 {
+  h1:first-child,
+  div:first-child+h1 {
     border-top-width: 0;
     margin-top: 0;
   }
@@ -377,12 +410,16 @@ html, body {
 
   // h2s right after h1s should bump right up
   // against the h1s.
-  h1 + h2, h1 + div + h2 {
+  h1+h2,
+  h1+div+h2 {
     margin-top: $h1-margin-bottom * -1;
     border-top: none;
   }
 
-  h3, h4, h5, h6 {
+  h3,
+  h4,
+  h5,
+  h6 {
     @extend %header-font;
     font-weight: normal;
     font-size: 17px;
@@ -390,8 +427,16 @@ html, body {
     margin-bottom: 0.8em;
   }
 
+  // Ensure long operation names wrap on small screens
+  h1,
+  h2,
+  h3 {
+    overflow-wrap: anywhere;
+  }
 
-  h4, h5, h6 {
+  h4,
+  h5,
+  h6 {
     font-size: 15px;
   }
 
@@ -404,10 +449,13 @@ html, body {
   table {
     margin-bottom: 1em;
     overflow: auto;
-    th,td {
+
+    th,
+    td {
       text-align: left;
       vertical-align: top;
       line-height: 1.6;
+
       code {
         white-space: nowrap;
       }
@@ -428,11 +476,11 @@ html, body {
     }
 
     tr:nth-child(odd)>td {
-      background-color: lighten($main-bg,4.2%);
+      background-color: lighten($main-bg, 4.2%);
     }
 
     tr:nth-child(even)>td {
-      background-color: lighten($main-bg,2.4%);
+      background-color: lighten($main-bg, 2.4%);
     }
   }
 
@@ -444,7 +492,10 @@ html, body {
     margin-left: 15px;
   }
 
-  p, li, dt, dd {
+  p,
+  li,
+  dt,
+  dd {
     line-height: 1.6;
     margin-top: 0;
   }
@@ -454,7 +505,7 @@ html, body {
   }
 
   code {
-    background-color: rgba(0,0,0,0.05);
+    background-color: rgba(0, 0, 0, 0.05);
     padding: 3px;
     border-radius: 3px;
     @extend %break-words;
@@ -516,21 +567,25 @@ html, body {
 // This is all the stuff that appears in the right half of the page
 
 .content {
-  pre, blockquote {
+
+  pre,
+  blockquote {
     background-color: $code-bg;
     color: #fff;
 
     margin: 0;
     width: $examples-width;
 
-    float:right;
-    clear:right;
+    float: right;
+    clear: right;
 
     box-sizing: border-box;
 
     @extend %right-col;
 
-    &>p { margin: 0; }
+    &>p {
+      margin: 0;
+    }
 
     a {
       color: #fff;
@@ -606,16 +661,20 @@ html, body {
     float: none;
   }
 
-  %right-col + %left-col {
+  %right-col+%left-col {
     margin-top: $main-padding;
   }
 }
 
-.highlight .c, .highlight .cm, .highlight .c1, .highlight .cs {
+.highlight .c,
+.highlight .cm,
+.highlight .c1,
+.highlight .cs {
   color: #909090;
 }
 
-.highlight, .highlight .w {
+.highlight,
+.highlight .w {
   background-color: $code-bg;
 }
 
