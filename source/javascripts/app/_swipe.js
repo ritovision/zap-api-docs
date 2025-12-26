@@ -1,77 +1,143 @@
 (function () {
-    'use strict';
+  'use strict';
 
-    var startX = 0;
-    var startY = 0;
-    var threshold = 60; // Minimum distance for a swipe in pixels
-    var verticalThreshold = 40; // Max vertical movement allowed to still count as a horizontal swipe
+  var startX = 0;
+  var startY = 0;
+  var threshold = 60; // Minimum distance for a swipe in pixels
+  var verticalThreshold = 100; // Max vertical movement allowed to still count as a horizontal swipe
 
-    function setupSwipe() {
-        document.addEventListener('touchstart', function (e) {
-            // Only enable swipes if the nav button is visible (meaning we are on mobile/tablet)
-            if ($("#nav-button").is(":hidden")) return;
+  // Guard so multiple listeners don't process the same touch twice
+  var activeTouchId = null;
 
-            // Ignore if more than one finger
-            if (e.touches.length > 1) return;
+  function isMobileNavEnabled() {
+    // Only enable swipes if the nav button is visible (meaning we are on mobile/tablet)
+    return !$("#nav-button").is(":hidden");
+  }
 
-            // Check if we are starting inside a horizontally scrollable element
-            var isScrollable = false;
-            var el = e.target;
-            while (el && el !== document.body) {
-                // Explicitly check for code blocks and lang selector which are known to scroll
-                if (el.tagName === 'PRE' || el.tagName === 'CODE' || el.classList.contains('highlight') || el.classList.contains('lang-selector')) {
-                    if (el.scrollWidth > el.clientWidth) {
-                        isScrollable = true;
-                        break;
-                    }
-                }
-                // Generic check for overflow-x
-                var style = window.getComputedStyle(el);
-                if ((style.overflowX === 'auto' || style.overflowX === 'scroll') && el.scrollWidth > el.clientWidth) {
-                    isScrollable = true;
-                    break;
-                }
-                el = el.parentElement;
-            }
+  function startedInHorizScrollableElement(target) {
+    var el = target;
 
-            if (isScrollable) {
-                startX = 0;
-                startY = 0;
-                return;
-            }
+    while (el && el !== document.body) {
+      // Explicitly check for code blocks and lang selector which are known to scroll
+      if (
+        el.tagName === 'PRE' ||
+        el.tagName === 'CODE' ||
+        (el.classList && (el.classList.contains('highlight') || el.classList.contains('lang-selector')))
+      ) {
+        if (el.scrollWidth > el.clientWidth) return true;
+      }
 
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        }, { passive: true });
+      // Generic check for overflow-x
+      var style = window.getComputedStyle(el);
+      if (
+        (style.overflowX === 'auto' || style.overflowX === 'scroll') &&
+        el.scrollWidth > el.clientWidth
+      ) {
+        return true;
+      }
 
-        document.addEventListener('touchend', function (e) {
-            if (startX === 0) return;
-
-            var endX = e.changedTouches[0].clientX;
-            var endY = e.changedTouches[0].clientY;
-            var diffX = endX - startX;
-            var diffY = Math.abs(endY - startY);
-
-            // Must be a horizontal-ish swipe
-            if (Math.abs(diffX) > threshold && diffY < verticalThreshold) {
-                if (diffX > 0) {
-                    // Swipe Right -> Open
-                    $(".toc-wrapper").addClass('open');
-                    $("#nav-button").addClass('open');
-                } else {
-                    // Swipe Left -> Close
-                    $(".toc-wrapper").removeClass('open');
-                    $("#nav-button").removeClass('open');
-                }
-            }
-
-            // Reset
-            startX = 0;
-            startY = 0;
-        }, { passive: true });
+      el = el.parentElement;
     }
 
-    $(function () {
-        setupSwipe();
-    });
+    return false;
+  }
+
+  function openDrawer() {
+    $(".toc-wrapper").addClass('open');
+    $("#nav-button").addClass('open');
+  }
+
+  function closeDrawer() {
+    $(".toc-wrapper").removeClass('open');
+    $("#nav-button").removeClass('open');
+  }
+
+  function resetTracking() {
+    activeTouchId = null;
+    startX = 0;
+    startY = 0;
+  }
+
+  function onTouchStart(e) {
+    if (!isMobileNavEnabled()) return;
+
+    // Ignore if more than one finger
+    if (!e.touches || e.touches.length !== 1) return;
+
+    // If we're already tracking a touch, ignore duplicates from other listeners
+    if (activeTouchId !== null) return;
+
+    // If touch started in a horizontally scrollable element, ignore swipes
+    if (startedInHorizScrollableElement(e.target)) {
+      resetTracking();
+      return;
+    }
+
+    var t = e.touches[0];
+    activeTouchId = t.identifier;
+    startX = t.clientX;
+    startY = t.clientY;
+  }
+
+  function onTouchEnd(e) {
+    if (activeTouchId === null) return;
+    if (!e.changedTouches || e.changedTouches.length === 0) return;
+
+    // Find the matching touch end
+    var t = null;
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === activeTouchId) {
+        t = e.changedTouches[i];
+        break;
+      }
+    }
+    if (!t) return;
+
+    var endX = t.clientX;
+    var endY = t.clientY;
+
+    var diffX = endX - startX;
+    var diffY = Math.abs(endY - startY);
+
+    // Must be a horizontal-ish swipe
+    if (Math.abs(diffX) > threshold && diffY < verticalThreshold) {
+      if (diffX > 0) {
+        // Swipe Right -> Open
+        openDrawer();
+      } else {
+        // Swipe Left -> Close
+        closeDrawer();
+      }
+    }
+
+    resetTracking();
+  }
+
+  function bindSwipe(el) {
+    if (!el) return;
+
+    // capture:true helps ensure we still see events even if something inside stops propagation
+    el.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
+    el.addEventListener('touchcancel', resetTracking, { passive: true, capture: true });
+  }
+
+  function setupSwipe() {
+    // Bind to BOTH the drawer and the page areas so a swipe can start anywhere
+    bindSwipe(document.querySelector('.toc-wrapper')); // sidebar/drawer
+
+    // Main page regions (these are safe no-ops if a selector doesn't exist)
+    bindSwipe(document.querySelector('main'));
+    bindSwipe(document.querySelector('.md-main'));
+    bindSwipe(document.querySelector('.md-container'));
+    bindSwipe(document.querySelector('header'));
+    bindSwipe(document.querySelector('footer'));
+
+    // Fallback: ensure the rest of the viewport is covered without using an overlay
+    bindSwipe(document.documentElement);
+  }
+
+  $(function () {
+    setupSwipe();
+  });
 })();
